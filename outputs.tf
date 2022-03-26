@@ -7,3 +7,6 @@ output "elasticIp" {
   value = aws_eip.static_ip.public_ip
 }
 
+output "zones_output_data" {
+  value = ""
+}
