@@ -8,5 +8,9 @@ output "elasticIp" {
 }
 
 output "zones_output_data" {
-  value = ""
+  value = data.aws_availability_zones.aws_zone.names
+}
+
+output "caller_id_output_data" {
+  value = data.aws_caller_identity.caller_id.account_id
 }
