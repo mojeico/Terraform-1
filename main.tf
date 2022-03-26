@@ -2,10 +2,14 @@
 # terraform plan - show what terraform will create
 # terraform apply - create all resource
 # terraform validate - make sure your configuration is syntactically valid
+# terraform output - print output
+# terraform show - print all resources with info
+# terraform destroy - destroy all resource
+
 
 provider "aws" {
-  access_key = "-------"
-  secret_key = "--------"
+  access_key = "AKIAQI4OHQMESNKCMADZ"
+  secret_key = "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"
   region     = "us-east-1"
 }
 
@@ -56,6 +60,34 @@ resource "aws_route_table_association" "rta_subnet_public" {
 }
 
 
+resource "aws_eip" "static_ip" {
+  instance = aws_instance.my_aws_instance_public_b.id
+
+  tags = {
+    Name : "Terraform ip"
+  }
+
+
+}
+
+
+resource "aws_instance" "database-public-server" {
+
+  ami                    = "ami-0c02fb55956c7d316"
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.public_subnet_a.id
+  vpc_security_group_ids = [aws_security_group.my_security_group.id]
+
+  lifecycle {
+    #prevent_destroy = true
+  }
+
+  tags = {
+    Name = "Public terraform database instance"
+  }
+}
+
+
 resource "aws_instance" "my_aws_instance_public_b" {
 
   ami                    = "ami-0c02fb55956c7d316"
@@ -66,11 +98,19 @@ resource "aws_instance" "my_aws_instance_public_b" {
   user_data = templatefile("./start_up.sh.tftpl", {
     test_val   = "The page was created by template file"
     name_val   = "Jon"
-    names_list = ["Donald", "Petya"]
+    names_list = ["Donald", "Petya", "Ion"]
   } )
 
+  depends_on = [aws_instance.database-public-server]
+
+  lifecycle {
+    //prevent_destroy = true
+    ignore_changes = ["ami", "instance_type"]
+    #create_before_destroy = true
+  }
+
   tags = {
-    Name = "Public terraform instance"
+    Name = "Public terraform web instance"
   }
 }
 
@@ -103,6 +143,4 @@ resource "aws_security_group" "my_security_group" {
   }
 
 }
-
-
 
