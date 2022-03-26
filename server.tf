@@ -1,5 +1,5 @@
 resource "aws_launch_configuration" "web_server" {
-  image_id        = "ami-0c02fb55956c7d316"
+  image_id        = data.aws_ami.latest_amazon_linux.id
   instance_type   = "t2.micro"
   // name            = "Terraform LC"
   name_prefix     = "Terraform-LC-"
@@ -50,7 +50,7 @@ resource "aws_autoscaling_group" "aws_auto_group" {
 
 resource "aws_instance" "my_aws_instance_public_b" {
 
-  ami                    = "ami-0c02fb55956c7d316"
+  ami                    = data.aws_ami.latest_amazon_linux.id
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.public_subnet_a.id
   vpc_security_group_ids = [aws_security_group.my_security_group.id]
