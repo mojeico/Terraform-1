@@ -3,7 +3,6 @@
 # terraform apply - create all resource
 # terraform validate - make sure your configuration is syntactically valid
 
-
 provider "aws" {
   access_key = "-------"
   secret_key = "--------"
@@ -16,10 +15,18 @@ resource "aws_vpc" "my_vpc" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
+  tags = {
+    Name : "Terraform VPC"
+  }
+
 }
 
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.my_vpc.id
+
+  tags = {
+    Name : "Terraform internet gateway"
+  }
 }
 
 
@@ -28,6 +35,10 @@ resource "aws_subnet" "public_subnet_a" {
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "us-east-1a"
+
+  tags = {
+    Name : "Terraform public subnet 1a"
+  }
 }
 
 resource "aws_route_table" "rtb_public" {
@@ -52,46 +63,43 @@ resource "aws_instance" "my_aws_instance_public_b" {
   subnet_id              = aws_subnet.public_subnet_a.id
   vpc_security_group_ids = [aws_security_group.my_security_group.id]
 
-  user_data = file("./start_up.sh")
+  user_data = templatefile("./start_up.sh.tftpl", {
+    test_val   = "The page was created by template file"
+    name_val   = "Jon"
+    names_list = ["Donald", "Petya"]
+  } )
 
   tags = {
-    Name = "my_tag_by_terraform"
+    Name = "Public terraform instance"
   }
 }
 
 resource "aws_security_group" "my_security_group" {
 
-  name        = "My security group"
   description = "Security group for aws  by id"
   vpc_id      = aws_vpc.my_vpc.id
 
 
-  ingress {
-    from_port   = 80
-    protocol    = "tcp"
-    to_port     = 80
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = ["80", "443", "22"]
+    content {
+      from_port   = ingress.value
+      protocol    = "tcp"
+      to_port     = ingress.value
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
 
-  ingress {
-    from_port   = 443
-    protocol    = "tcp"
-    to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 22
-    protocol    = "tcp"
-    to_port     = 22
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   egress {
     from_port   = 0
     protocol    = "-1"
     to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name : "Terraform dynamic sec group"
   }
 
 }

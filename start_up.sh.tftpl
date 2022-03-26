@@ -1,0 +1,22 @@
+#! /bin/bash
+yum -y  update
+yum -y  install httpd
+#echo "The page was created by Terraform" >  /var/www/html/index.html
+cat <<EOF> /var/www/html/index.html
+
+<html>
+
+  <h1> BUILD BY TERRAFORM </h1>
+  <h2> ${test_val} !!! </h2>
+  <h2> Hello my user ${name_val} !!! </h2>
+
+  %{ for name in names_list ~}
+    <h3> Hello to ${name} from user list  </h3>
+  %{ endfor ~}
+
+<html>
+
+EOF
+
+sudo service httpd start
+chkconfig httpd on
