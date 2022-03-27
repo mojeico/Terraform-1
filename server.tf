@@ -107,8 +107,11 @@ resource "aws_security_group" "my_security_group" {
 }
 
 
-
-
+resource "aws_instance" "foo" {
+  ami           = "ami-0dcc0ebde7b2e00db"
+  instance_type = "t2.micro"
+  provider      = aws.EU
+}
 
 
 

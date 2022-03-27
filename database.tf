@@ -13,14 +13,10 @@ resource "aws_db_instance" "mysql" {
   db_subnet_group_name = aws_db_subnet_group.rds_subnet_group.id
   identifier           = "devterraformrds"
 
-  #provider = aws.EU
-
 }
 
 resource "aws_db_subnet_group" "rds_subnet_group" {
   subnet_ids = [aws_subnet.public_subnet_a.id, aws_subnet.public_subnet_b.id]
   name       = "dev_rds_subnet_group"
-
-  provider = aws.EU
 
 }

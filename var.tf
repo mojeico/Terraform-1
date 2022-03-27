@@ -1,4 +1,6 @@
-variable "env" {}
+variable "env" {
+  default = "prod"
+}
 
 variable "usa-region" {
   default = "us-east-1"
