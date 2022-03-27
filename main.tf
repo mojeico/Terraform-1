@@ -8,9 +8,38 @@
 
 
 provider "aws" {
-  access_key = "----"
-  secret_key = "----"
-  region     = var.region
+  access_key = "-----"
+  secret_key = "-----"
+  region     = var.usa-region
+}
+
+provider "aws" {
+  access_key = "-----"
+  secret_key = "-----"
+  region     = var.eu-region
+  alias      = "EU"
 }
 
 
+resource "random_string" "rds_password" {
+  length           = 12
+  special          = true
+  override_special = "!%$#($@"
+}
+
+resource "aws_ssm_parameter" "rds_password" {
+  name        = "/prod/mysql"
+  type        = "SecureString"
+  value       = random_string.rds_password.result
+  description = "Master password for rds"
+
+}
+
+
+data "aws_ssm_parameter" "my_rds_password" {
+  name       = "/prod/mysql"
+  depends_on = [aws_ssm_parameter.rds_password]
+}
+
+
+#var.env == "prod" ? "t.large":"t.smal"

@@ -14,3 +14,7 @@ output "elasticIp" {
 output "web_load_balancer_url" {
   value = aws_elb.load_balancer.dns_name
 }
+output "rds_mysql_password" {
+  value = data.aws_ssm_parameter.my_rds_password.value
+  sensitive = true
+}

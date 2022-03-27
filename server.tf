@@ -51,6 +51,7 @@ resource "aws_autoscaling_group" "aws_auto_group" {
 
 resource "aws_instance" "my_aws_instance_public_b" {
 
+  count                  = var.env == "dev"?1 : 0
   ami                    = data.aws_ami.latest_amazon_linux.id
   instance_type          = var.t_2_micro_type
   subnet_id              = aws_subnet.public_subnet_a.id
